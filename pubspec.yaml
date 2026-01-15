@@ -1,0 +1,51 @@
+name: hackathon_app
+description: "Hackathon Management System - Flutter Application"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Icons
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
+  
+  # State Management
+  provider: ^6.1.2
+  
+  # Networking
+  dio: ^5.4.0
+  http: ^1.2.0
+  
+  # Routing
+  go_router: ^13.2.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  
+  # Form Validation
+  email_validator: ^2.1.17
+  
+  # Date & Time
+  intl: ^0.19.0
+  
+  # Toast Notifications
+  fluttertoast: ^8.2.4
+  
+  # JSON Serialization
+  json_annotation: ^4.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true
