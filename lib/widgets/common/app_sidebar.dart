@@ -35,16 +35,10 @@ class AppSidebar extends StatelessWidget {
     final router = GoRouter.of(context);
     final currentPath = router.routerDelegate.currentConfiguration.uri.path;
 
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      left: isOpen ? 0 : -256,
-      top: 0,
-      bottom: 0,
+    return Container(
       width: 256,
-      child: Container(
-        color: Colors.white,
-        child: Column(
+      color: Colors.white,
+      child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(24),
@@ -133,7 +127,6 @@ class AppSidebar extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

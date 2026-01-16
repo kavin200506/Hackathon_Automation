@@ -56,14 +56,15 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppConstants.refreshTokenKey, response['refresh']);
 
+      if (!mounted) return;
+      ErrorHandler.showSuccess('Login successful!');
       if (mounted) {
-        ErrorHandler.showSuccess('Login successful!');
         context.go(AppConstants.routeStudentDashboard);
       }
     } catch (error) {
       // Mock auth fallback
       if (_emailController.text.trim() == 'student@test.com' &&
-          _passwordController.text == '123456') {
+          _passwordController.text == '12345678') {
         final authStore = Provider.of<AuthStore>(context, listen: false);
         final mockUser = User(
           id: 'mock-1',
@@ -79,9 +80,12 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(AppConstants.refreshTokenKey, 'mock-refresh-token');
 
+        if (!mounted) return;
+        ErrorHandler.showSuccess('Mock login successful!');
         if (mounted) {
-          ErrorHandler.showSuccess('Mock login successful!');
+          debugPrint('Navigating to dashboard: ${AppConstants.routeStudentDashboard}');
           context.go(AppConstants.routeStudentDashboard);
+          debugPrint('Navigation completed');
         }
       } else {
         ErrorHandler.handleAPIError(error);
@@ -193,4 +197,5 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     );
   }
 }
+
 
