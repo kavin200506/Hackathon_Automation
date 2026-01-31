@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/theme.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -46,6 +45,8 @@ class AppCard extends StatelessWidget {
     return card;
   }
 }
+
+
 
 
 

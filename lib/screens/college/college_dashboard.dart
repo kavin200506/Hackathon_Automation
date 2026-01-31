@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class CollegeDashboardScreen extends StatelessWidget {
   const CollegeDashboardScreen({super.key});
@@ -12,6 +11,8 @@ class CollegeDashboardScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme.dart';
-import '../widgets/common/app_button.dart';
 import '../widgets/common/app_card.dart';
 
 class LandingScreen extends StatelessWidget {
@@ -134,7 +133,7 @@ class _UserTypeCard extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 32),

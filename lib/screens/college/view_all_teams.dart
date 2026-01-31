@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class ViewAllTeamsScreen extends StatelessWidget {
   const ViewAllTeamsScreen({super.key});
@@ -12,6 +11,8 @@ class ViewAllTeamsScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

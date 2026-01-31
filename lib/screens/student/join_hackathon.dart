@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class JoinHackathonScreen extends StatelessWidget {
   const JoinHackathonScreen({super.key});
@@ -12,6 +11,8 @@ class JoinHackathonScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

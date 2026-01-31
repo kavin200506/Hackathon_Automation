@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class TeamPaymentScreen extends StatelessWidget {
   final String teamId;
@@ -14,6 +13,8 @@ class TeamPaymentScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

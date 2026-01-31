@@ -45,6 +45,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
         'password': _passwordController.text,
       });
 
+      if (!mounted) return;
       final authStore = Provider.of<AuthStore>(context, listen: false);
       final user = User.fromJson(response['user']);
       await authStore.setAuth(

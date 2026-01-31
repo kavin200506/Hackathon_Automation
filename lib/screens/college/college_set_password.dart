@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class CollegeSetPasswordScreen extends StatelessWidget {
   const CollegeSetPasswordScreen({super.key});
@@ -12,6 +11,8 @@ class CollegeSetPasswordScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

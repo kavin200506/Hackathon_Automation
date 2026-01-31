@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class StudentOTPVerificationScreen extends StatelessWidget {
   const StudentOTPVerificationScreen({super.key});
@@ -12,6 +11,8 @@ class StudentOTPVerificationScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

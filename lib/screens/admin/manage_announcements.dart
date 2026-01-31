@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class ManageAnnouncementsScreen extends StatelessWidget {
   const ManageAnnouncementsScreen({super.key});
@@ -12,6 +11,8 @@ class ManageAnnouncementsScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

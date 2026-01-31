@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class CreateHackathonScreen extends StatelessWidget {
   const CreateHackathonScreen({super.key});
@@ -12,6 +11,8 @@ class CreateHackathonScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

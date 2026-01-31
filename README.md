@@ -54,7 +54,14 @@ flutter pub get
 
 3. Run the app:
 ```bash
-flutter run
+# If multiple devices are available, specify one:
+flutter run -d macos      # Run on macOS
+flutter run -d chrome      # Run on Chrome (web)
+flutter run -d android     # Run on Android device/emulator
+flutter run -d ios         # Run on iOS device/simulator
+
+# Or use the provided script for macOS:
+./run.sh
 ```
 
 ## Platform Support

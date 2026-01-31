@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
 
 class ViewDepartmentsScreen extends StatelessWidget {
   const ViewDepartmentsScreen({super.key});
@@ -12,6 +11,8 @@ class ViewDepartmentsScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 
 
