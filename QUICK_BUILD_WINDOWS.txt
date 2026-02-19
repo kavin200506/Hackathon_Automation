@@ -1,0 +1,34 @@
+═══════════════════════════════════════════════════════════════
+  QUICK BUILD INSTRUCTIONS FOR WINDOWS APPLICATION
+═══════════════════════════════════════════════════════════════
+
+📦 PACKAGE LOCATION:
+   flutter_windows_build.zip (in project root)
+
+🚀 QUICK BUILD STEPS (On Windows Machine):
+
+1. Extract flutter_windows_build.zip to a folder
+
+2. Open Command Prompt or PowerShell in the flutter folder
+
+3. Run these commands:
+   
+   flutter pub get
+   flutter build windows --release
+
+4. Find your executable at:
+   build\windows\x64\runner\Release\hackathon_app.exe
+
+5. To run: Double-click hackathon_app.exe
+
+📋 PREREQUISITES (if not already installed):
+   - Flutter SDK: https://flutter.dev/docs/get-started/install/windows
+   - Visual Studio 2022 with "Desktop development with C++" workload
+
+💡 TROUBLESHOOTING:
+   - If Windows desktop not enabled: flutter config --enable-windows-desktop
+   - Check setup: flutter doctor -v
+   - Ensure Visual Studio C++ tools are installed
+
+═══════════════════════════════════════════════════════════════
+

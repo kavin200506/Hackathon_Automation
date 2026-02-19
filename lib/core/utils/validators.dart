@@ -37,6 +37,16 @@ class Validators {
     return null;
   }
 
+  static String? validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    return null;
+  }
+
   static String? validateMobile(String? value) {
     if (value == null || value.isEmpty) {
       return 'Mobile number is required';
@@ -49,16 +59,12 @@ class Validators {
   }
 
   static String? validateYear(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Year is required';
     }
-    final yearRegex = RegExp(r'^[0-9]{4}$');
-    if (!yearRegex.hasMatch(value)) {
-      return 'Invalid year';
-    }
-    final year = int.tryParse(value);
-    if (year == null || year < 1900 || year > 2100) {
-      return 'Invalid year';
+    final year = int.tryParse(value.trim());
+    if (year == null || year < 2020 || year > 2035) {
+      return 'Enter a valid year (2020-2035)';
     }
     return null;
   }
@@ -90,6 +96,11 @@ class Validators {
     return null;
   }
 }
+
+
+
+
+
 
 
 

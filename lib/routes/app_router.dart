@@ -37,6 +37,30 @@ class AppRouter {
   static final GoRouter _router = GoRouter(
     initialLocation: AppConstants.routeHome,
     redirect: (context, state) async {
+      // If user opens app and has valid token + userType, redirect to their dashboard
+      if (state.matchedLocation == AppConstants.routeHome) {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString(AppConstants.accessTokenKey);
+        final userType = prefs.getString(AppConstants.userTypeKey);
+
+        if (token != null && userType != null) {
+          switch (userType) {
+            case AppConstants.userTypeStudent:
+              return AppConstants.routeStudentDashboard;
+            case AppConstants.userTypeCollege:
+              return AppConstants.routeCollegeDashboard;
+            case AppConstants.userTypeDepartment:
+              return AppConstants.routeDepartmentDashboard;
+            case AppConstants.userTypeAdmin:
+              return AppConstants.routeAdminDashboard;
+            default:
+              return null; // Stay on landing if unknown userType
+          }
+        }
+        return null; // No token, stay on landing
+      }
+
+      // Check protected routes
       final isProtected = _isProtectedRoute(state.matchedLocation);
       if (isProtected) {
         final allowedTypes = _getAllowedUserTypes(state.matchedLocation);

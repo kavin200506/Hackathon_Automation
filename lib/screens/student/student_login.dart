@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../core/constants.dart';
 import '../../../core/theme.dart';
 import '../../../core/utils/error_handler.dart';
 import '../../../core/utils/validators.dart';
+import '../../../models/user.dart';
 import '../../../services/auth_api.dart';
 import '../../../store/auth_store.dart';
-import '../../../models/user.dart';
 import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/app_card.dart';
 import '../../../widgets/common/app_input.dart';
@@ -21,9 +22,9 @@ class StudentLoginScreen extends StatefulWidget {
 }
 
 class _StudentLoginScreenState extends State<StudentLoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -40,38 +41,46 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
       final response = await AuthAPI.studentLogin({
-        'email': _emailController.text.trim(),
-        'password': _passwordController.text,
+        'email': email,
+        'password': password,
       });
 
       if (!mounted) return;
+
       final authStore = Provider.of<AuthStore>(context, listen: false);
-      final user = User.fromJson(response['user']);
+      final userJson =
+          (response['user'] ?? response['student'] ?? {}) as Map<String, dynamic>;
+      final user = User.fromJson(userJson);
+
+      final token =
+          (response['access_token'] ?? response['token'] ?? '') as String;
+
       await authStore.setAuth(
         user,
-        response['access'],
+        token,
         AppConstants.userTypeStudent,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(AppConstants.refreshTokenKey, response['refresh']);
-
       if (!mounted) return;
-      ErrorHandler.showSuccess('Login successful!');
-      if (mounted) {
-        context.go(AppConstants.routeStudentDashboard);
-      }
+      ErrorHandler.showSuccess('Welcome back, ${user.name}!');
+      context.go(AppConstants.routeStudentDashboard);
     } catch (error) {
-      // Mock auth fallback
-      if (_emailController.text.trim() == 'student@test.com' &&
-          _passwordController.text == '12345678') {
+      // Mock login fallback
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      if (email == 'student@test.com' && password == '12345678') {
         final authStore = Provider.of<AuthStore>(context, listen: false);
         final mockUser = User(
           id: 'mock-1',
           name: 'Mock Student',
           email: 'student@test.com',
         );
+
         await authStore.setAuth(
           mockUser,
           'mock-access-token',
@@ -83,11 +92,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
 
         if (!mounted) return;
         ErrorHandler.showSuccess('Mock login successful!');
-        if (mounted) {
-          debugPrint('Navigating to dashboard: ${AppConstants.routeStudentDashboard}');
-          context.go(AppConstants.routeStudentDashboard);
-          debugPrint('Navigation completed');
-        }
+        context.go(AppConstants.routeStudentDashboard);
       } else {
         ErrorHandler.handleAPIError(error);
       }
@@ -101,94 +106,157 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppTheme.primary50, Colors.white, AppTheme.secondary50],
+            colors: [
+              AppTheme.primary50,
+              Colors.white,
+              AppTheme.secondary50,
+            ],
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: AppCard(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 16),
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.login, color: Colors.white, size: 32),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => context.go(AppConstants.routeHome),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        size: 18,
+                        color: AppTheme.gray600,
                       ),
-                      const SizedBox(height: 24),
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            AppTheme.primaryGradient.createShader(bounds),
-                        child: const Text(
-                          'Student Login',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                      label: const Text(
+                        'Back',
+                        style: TextStyle(
+                          color: AppTheme.gray600,
+                          fontSize: 14,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Welcome back! Sign in to your account',
-                        style: TextStyle(color: AppTheme.gray600),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      const SizedBox(height: 32),
-                      AppInput(
-                        label: 'Email Address',
-                        hintText: 'Enter your email',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: Validators.validateEmail,
-                      ),
-                      const SizedBox(height: 16),
-                      AppInput(
-                        label: 'Password',
-                        hintText: 'Enter your password',
-                        controller: _passwordController,
-                        isObscure: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                          ),
-                          onPressed: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    const SizedBox(height: 8),
+                    AppCard(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Icon(
+                                Icons.school_rounded,
+                                size: 36,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Student Login',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.gray900,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Welcome back! Sign in to continue',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.gray500,
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            AppInput(
+                              label: 'Email Address',
+                              hintText: 'Enter your email',
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: Validators.validateEmail,
+                            ),
+                            const SizedBox(height: 16),
+                            AppInput(
+                              label: 'Password',
+                              hintText: 'Enter your password',
+                              controller: _passwordController,
+                              isObscure: _obscurePassword,
+                              validator: Validators.validatePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppTheme.gray500,
+                                ),
+                                onPressed: () {
+                                  setState(
+                                      () => _obscurePassword = !_obscurePassword);
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            AppButton(
+                              isFullWidth: true,
+                              isLoading: _isLoading,
+                              onPressed: _handleLogin,
+                              child: const Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Don\'t have an account? ',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppTheme.gray600,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => context
+                                      .go(AppConstants.routeStudentRegister),
+                                  child: const Text(
+                                    'Register',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.primary600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        validator: Validators.validatePassword,
                       ),
-                      const SizedBox(height: 24),
-                      AppButton(
-                        isFullWidth: true,
-                        isLoading: _isLoading,
-                        onPressed: _handleLogin,
-                        child: const Text('Sign In'),
-                      ),
-                      const SizedBox(height: 24),
-                      TextButton(
-                        onPressed: () => context.go(AppConstants.routeStudentRegister),
-                        child: const Text('Don\'t have an account? Register here'),
-                      ),
-                      TextButton(
-                        onPressed: () => context.go(AppConstants.routeHome),
-                        child: const Text('← Back to Home'),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -198,5 +266,3 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> {
     );
   }
 }
-
-

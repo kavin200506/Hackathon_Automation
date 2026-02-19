@@ -1,19 +1,229 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AdminLoginScreen extends StatelessWidget {
+import '../../../core/constants.dart';
+import '../../../core/theme.dart';
+import '../../../core/utils/error_handler.dart';
+import '../../../core/utils/validators.dart';
+import '../../../models/user.dart';
+import '../../../services/auth_api.dart';
+import '../../../store/auth_store.dart';
+import '../../../widgets/common/app_button.dart';
+import '../../../widgets/common/app_card.dart';
+import '../../../widgets/common/app_input.dart';
+
+class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
+
+  @override
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+}
+
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      final response = await AuthAPI.adminLogin({
+        'email': email,
+        'password': password,
+      });
+
+      final authStore = Provider.of<AuthStore>(context, listen: false);
+      final user = User.fromJson(response['user'] ?? response['admin'] ?? {});
+      final token = response['access_token'] ?? response['token'] ?? '';
+
+      await authStore.setAuth(user, token, AppConstants.userTypeAdmin);
+
+      if (!mounted) return;
+      ErrorHandler.showSuccess('Welcome back, ${user.name}!');
+      if (mounted) {
+        context.go(AppConstants.routeAdminDashboard);
+      }
+    } catch (error) {
+      // Mock login fallback
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      if (email == 'admin@test.com' && password == '12345678') {
+        final authStore = Provider.of<AuthStore>(context, listen: false);
+        final mockUser = User(
+          id: 'admin-1',
+          name: 'Administrator',
+          email: 'admin@test.com',
+        );
+        await authStore.setAuth(
+          mockUser,
+          'mock-access-token',
+          AppConstants.userTypeAdmin,
+        );
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(AppConstants.refreshTokenKey, 'mock-refresh-token');
+
+        if (!mounted) return;
+        ErrorHandler.showSuccess('Mock login successful!');
+        if (mounted) {
+          context.go(AppConstants.routeAdminDashboard);
+        }
+      } else {
+        ErrorHandler.handleAPIError(error);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Login')),
-      body: const Center(child: Text('Admin Login - To be implemented')),
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFEE2E2),
+              Colors.white,
+              Color(0xFFFFF1F1),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => context.go(AppConstants.routeHome),
+                      icon: const Icon(Icons.arrow_back, size: 18),
+                      label: const Text('Back'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.gray600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    AppCard(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: AppTheme.error600.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Icon(
+                                Icons.admin_panel_settings_rounded,
+                                size: 36,
+                                color: AppTheme.error600,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Admin Login',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.gray900,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'System Administrator Access',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.gray500,
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            AppInput(
+                              label: 'Email Address',
+                              hintText: 'Enter your email',
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: Validators.validateEmail,
+                            ),
+                            const SizedBox(height: 16),
+                            AppInput(
+                              label: 'Password',
+                              hintText: 'Enter your password',
+                              controller: _passwordController,
+                              isObscure: _obscurePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: AppTheme.gray500,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              validator: Validators.validatePassword,
+                            ),
+                            const SizedBox(height: 24),
+                            AppButton(
+                              isFullWidth: true,
+                              isLoading: _isLoading,
+                              onPressed: _handleLogin,
+                              child: const Text(
+                                'Sign In',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Admin access is restricted. Contact system team for credentials.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.gray500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
-
-
-
-
-
-

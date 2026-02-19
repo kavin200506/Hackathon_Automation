@@ -7,6 +7,7 @@ import 'store/hackathon_store.dart';
 import 'store/team_store.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

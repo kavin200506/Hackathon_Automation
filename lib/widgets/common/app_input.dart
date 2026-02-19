@@ -13,6 +13,7 @@ class AppInput extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final int? maxLines;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   final String? Function(String?)? validator;
 
   const AppInput({
@@ -28,6 +29,7 @@ class AppInput extends StatelessWidget {
     this.onChanged,
     this.maxLines = 1,
     this.suffixIcon,
+    this.prefixIcon,
     this.validator,
   });
 
@@ -69,6 +71,7 @@ class AppInput extends StatelessWidget {
             hintText: hintText,
             errorText: errorText,
             suffixIcon: suffixIcon,
+            prefixIcon: prefixIcon,
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
